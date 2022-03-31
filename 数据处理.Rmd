@@ -1,0 +1,445 @@
+---
+title: "数据处理"
+author: "Linze Yu"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: TRUE
+    default_style: "light"
+    downcute_theme: "default"
+    fig_width: 7
+    fig_height: 5
+    use_bookdown: TRUE
+    gallery: TRUE
+    lightbox: TRUE
+    highlight: tango
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r, 代码全局设置, echo = F}
+knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = F, comment = "", echo = T, dpi = 200, collapse = T, fig.align = "left", dev = "png", cache = T)
+# , eval = F代码显示不运行
+# , include = F代码运行, 不显示代码和结果
+# , echo = T 显示代码块
+# , prompt = T使用>开始代码
+# , comment = ""结果不使用##
+# , collapse = T#代码合并结果
+# , out.width/out.height = 0.8缩放
+# , fig.align = "left","center","right"对齐方式
+# , dev = "pdf","png","svg","jpeg"记录设备
+# , cache = T
+```
+
+## 加载包
+```{r 加载包}
+library("YuriR") #
+# library("rio")#
+# library("tidyverse")#
+# library("tidyfst")#
+# library("data.table")#
+# library("knitr")#
+# library("kableExtra")#表格+
+```
+
+<font size = 6>**数据导入** > **数据清洗** > **数据变换** > 数据可视化 > 数据建模 > **可重现与交互报告**</font>
+
+# data.table`data[i, j, by]`
+## 数据框
+```{r, eval = F}
+input <- if (file.exists("flights14.csv")) {
+  "flights14.csv"
+} else {
+  "https://raw.githubusercontent.com/Rdatatable/data.table/master/vignettes/flights14.csv"
+}
+flights <- fread(input)
+flights
+fwrite(flights, file = "D:/desktop/book/tidybook/data/datatable.csv", encoding = "UTF-8")
+```
+
+## 数据导入/导出
+```{r}
+import("D:/desktop/book/tidybook/data/datatable.csv") %>%
+  data.table() -> dt
+import("D:/desktop/book/tidybook/data/case_MS/p131_4.xlsx") %>%
+  data.table() -> q
+```
+
+## 数据清洗
+### 创建`data.table`
+```{r}
+data.table(
+  a = c(1:5),
+  b = letters[1:5]
+) -> data
+```
+
+### 操作行
+```{r}
+q[3:5, ] # 选择3-5行
+q[group1 == "B", ] # 选择group1为B的行
+q[age %in% c("65", "69")] # 选择age中等于65,69的行
+```
+
+### 操作列
+```{r}
+q[, CO2]
+q[, .(CO2, age)]
+q[, .(sum = sum(CO2), mean = mean(O2), median = median(age), sd = sd(pH))]
+```
+
+
+# 数据框
+```{r}
+dt <- data.table(
+  a = c(1:5),
+  b = letters[1:5]
+)
+dt
+```
+
+# 选择列
+list="."
+
+## 单列
+```{r}
+dt[, list(a)]
+dt[, .(a)]
+```
+
+## 多列
+```{r}
+dt[, list(a, b)]
+dt[, .(a, b)]
+```
+
+## 使用列名
+```{r}
+dt[, c("a")]
+```
+
+# 选择行
+
+## 对a列筛选大于3的行
+```{r}
+dt[a > 3]
+```
+
+## 对b列筛选等于"a","e"的行
+```{r}
+dt[b %in% c("a", "e")]
+```
+
+## 多条件
+```{r}
+dt[a > 3 & b %in% c("a", "e")]
+```
+
+# 选择行与列
+
+## 
+```{r}
+dt[a > 3, list(a)]
+```
+
+## 
+```{r}
+dt[b %in% c("a", "e"), list(a)]
+```
+
+# 新建列":="
+
+## 新建列
+```{r}
+dt[, c := 6:10]
+dt
+```
+
+## 由已知新建列
+```{r}
+dt[, d := a + c]
+dt
+```
+
+## 新建多个列
+```{r}
+dt[, c("e", "f") := list(letters[6:10], LETTERS[6:10])]
+dt
+```
+
+## 新增条件列
+```{r}
+dt[, f := if_else(a > 3, ">3", "<=3")]
+dt
+```
+
+## 链式
+```{r}
+dt[, f := if_else(a > 3, ">3", "<=3")][order(-a)]
+dt
+```
+
+# 聚合
+
+## 聚合
+```{r}
+dt[, list(nrow = .N, a_sum = sum(a), c_mean = mean(c))]
+```
+
+## 组合计算
+```{r}
+dt[, list(CR = sum(a) / sum(c))]
+```
+
+## 分类聚合
+```{r}
+dt[, list(a_sum = sum(a), CR = sum(a) / sum(c)), by = list(f)]
+```
+
+## 按多列分类
+```{r}
+dt[, list(a_sum = sum(a), CR = sum(a) / sum(c)), by = list(f, e)]
+```
+
+# 多表联结
+```{r}
+dt1 <- dt[, list(a, c, d, b)]
+dt2 <- dt[, list(b, e, f)]
+dt1
+dt2
+```
+
+## 左右联结
+```{r}
+dt1[dt2, on = .(b)]
+dt2[dt1, on = .(b)]
+```
+
+## 多表合并
+
+### 列数不同
+```{r}
+rbindlist(list(dt1, dt2), fill = T)
+```
+
+# 数据导入
+```{r}
+import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_MS/p131_4.xlsx") -> q
+slice_dt(q, 1:3)
+dim(q)
+```
+
+# 数据清洗
+
+# 用平均值、中值或模式填充缺失值`impute_dt`
+.func= "mode"(default), "mean" or "median"
+
+## 处理NA值
+```{r, eval = F}
+drop_na_dt() # 去除含有NA的全部行
+drop_na_dt(age) # 去除age列含有NA的全部行
+drop_na_dt(age, 标记物) # 去除age, 标记物列含有NA的全部行
+replace_na_dt(age, to = 0) # 将age, NA替换为0
+fill_na_dt(age) # 对NA值填充
+delete_na_cols(prop = 1.00) # 删除全部为NA的列
+delete_na_cols(n = 2) # 删除数据少于2个的列
+delete_na_rows(prop = 0.6) # 删除低于0.6数据的行
+delete_na_rows(n = 2) # 删除数据少于两个的行
+```
+
+## 列处理col
+### 选取列/删除列`-`
+```{r}
+q %>%
+  select_mix(4, group1, 1:2, O2:group1, "O2", c("pH"), rm.dup = F) %>% # rm.dup = F不删除重复列
+  slice_dt(1:3)
+```
+
+### 列内容调整
+```{r}
+q %>%
+  rename_dt(二氧化碳 = CO2, 氧气 = O2, 年龄 = age, 分组 = group1) %>% # 列改名
+  slice_dt(1:3)
+q %>%
+  mutate_dt(n = 1, test = CO2 + O2) %>% # 新建列
+  slice_dt(1:3)
+q %>%
+  mutate_when(age < 70, age1 = "年龄小") %>% # 条件赋值
+  slice_dt(1:3)
+q %>%
+  mutate_vars("O2", function(x) x - 200) %>% # 定制化更新列
+  slice_dt(1:3)
+q %>%
+  mutate_vars(is.numeric, function(x) x - 200) %>% # 定制化更新列
+  slice_dt(1:3)
+```
+
+## 行处理row
+### 选取行
+```{r}
+q %>%
+  slice_dt(1:3)
+q %>%
+  slice_dt(1, 3)
+q %>%
+  slice_dt(c(1, 3))
+q %>%
+  slice_dt(age > 80)
+q %>%
+  filter_dt(age > 70 & CO2 <= 50) # 筛选行
+q %>%
+  top_dt(age, n = 10) # 提取age前十行
+q %>%
+  top_dt(age, prop = 0.1) # 提取age前10%行
+q %>%
+  slice_sample_dt(5) # 抽取5个随机样本
+q %>%
+  slice_sample_dt(0.2) # 抽取20%随机样本
+q %>%
+  distinct_dt(CO2, .keep_all = T) # 去重.keep_all = T,显示全部数据框
+```
+
+## 排序
+### 列位置调整
+```{r}
+q %>%
+  relocate_dt(group1) %>% # 移动到第一列
+  slice_dt(1:3)
+q %>%
+  relocate_dt(age, how = "last") %>% # 移动到最后一列
+  slice_dt(1:3)
+q %>%
+  relocate_dt(age, how = "after", where = O2) %>% # 精确调整
+  slice_dt(1:3)
+q %>%
+  relocate_dt(group1, how = "before", where = CO2) %>% # 精确调整
+  slice_dt(1:3)
+```
+
+### 行排序
+```{r}
+q %>%
+  arrange_dt(O2) %>% # 升序
+  slice_dt(1:3)
+q %>%
+  arrange_dt(-O2) %>% # 降序
+  slice_dt(1:3)
+q %>%
+  arrange_dt(O2, CO2) %>% # 两变量先O2后CO2
+  slice_dt(1:3)
+```
+
+## 合并
+### 直接合并
+```{r}
+q %>%
+  rbind(q) %>% # 上下
+  dim()
+q %>%
+  cbind(q) %>% # 左右
+  slice_dt(1:3)
+```
+
+```{r}
+import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/合并.xlsx") -> e
+e %>%
+  slice_dt(c(1, 2, 3, 4, 5, 6, 10, 11, 12)) -> e1
+e1
+e %>%
+  slice_dt(c(1, 2, 3, 7, 8, 9, 13, 14, 15)) -> e2
+e2
+```
+
+### 共有合并
+```{r}
+e1 %>%
+  inner_join_dt(e2) -> e3
+e3
+```
+
+### 保留左侧行
+```{r}
+e1 %>%
+  left_join_dt(e2) -> e3
+e3
+```
+
+### 保留右侧行
+```{r}
+e1 %>%
+  right_join_dt(e2) -> e3
+e3
+```
+
+### 保留全部行
+```{r}
+e1 %>%
+  full_join_dt(e2) -> e3
+e3
+```
+
+### 输出左侧数据框独有行
+```{r}
+e1 %>%
+  anti_join_dt(e2) -> e3
+e3
+```
+
+### 输出右侧数据库共有行
+```{r}
+e1 %>%
+  semi_join_dt(e2) -> e3
+e3
+```
+
+# 数据变换
+## 转置
+```{r, eval = F}
+q %>%
+  t_dt()
+```
+
+## 宽变长
+```{r}
+q %>%
+  longer_dt(age, pH, group1, name = "group", value = "value") %>%
+  dim()
+```
+
+## 长变宽
+```{r}
+q %>%
+  wider_dt(name = "group1", value = "age") %>%
+  dim()
+```
+
+## 聚集
+### 计数
+```{r}
+q %>%
+  count_dt(CO2, .name = "count") %>%
+  slice_dt(1:3)
+q %>%
+  add_count_dt(CO2, .name = "CO2count") %>%
+  slice_dt(1:3)
+```
+
+### 数据框统计
+```{r}
+q %>%
+  summarise_dt(n = .N, by = group1) # 计数
+q %>%
+  summarise_dt(mean = mean(CO2), by = group1) # 求平均数
+q %>%
+  summarise_dt(median = median(CO2), by = group1) # 求中位数
+q %>%
+  summarise_dt(sd = sd(CO2), by = group1) # 标准差
+```
+
+## 中心化标准化
+```{r}
+q %>%
+  mutate_vars(1:4, scale) %>%
+  dim()
+```
