@@ -38,21 +38,22 @@ library("YuriR") #
 library("ggbeeswarm") # 散点防止重合
 library("ggExtra") # 边际直方图/密度曲线*
 library("ggside") # 边际直方图/密度曲线
+library("webr") # 饼图+甜甜圈图+旭日图+检验绘图
 # library("ggwordcloud")#词云
 # library("gghalves")#组合
 ```
 
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_MS/p131_4.xlsx") -> q
+import("D:/desktop/book/tidybook/data/case_MS/p131_4.xlsx") -> q
 ```
 
-## 美学举例(A药B药降血糖)
+# 美学举例(A药B药降血糖)
 ```{r}
-data <- import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_MS/P57_t.xlsx")
+data <- import("D:/desktop/book/tidybook/data/case_MS/P57_t.xlsx")
 data
 ```
 
-### before
+## before
 ```{r}
 data %>%
   ggplot(., aes(x = drug, y = before)) +
@@ -61,7 +62,7 @@ data %>%
   expand_limits(y = c(7, 12))
 ```
 
-### after
+## after
 ```{r}
 data %>%
   ggplot(., aes(x = drug, y = after)) +
@@ -70,7 +71,7 @@ data %>%
   expand_limits(y = c(7, 9))
 ```
 
-### 如何比较患者使用降糖药前后的差异
+## 如何比较患者使用降糖药前后的差异
 ```{r}
 databa <- longer_dt(data, n, drug, name = "group", value = "value")
 databa
@@ -96,7 +97,7 @@ databa %>%
   expand_limits(y = c(6, 12))
 ```
 
-### 综合
+## 综合
 ```{r}
 databa %>%
   ggplot(., aes(x = group, y = value, color = drug)) +
@@ -121,7 +122,8 @@ databa %>%
   theme(legend.position = (c(0.95, 0.25)))
 ```
 
-## 社科相关
+# 社科相关
+## (ggplot2)内置
 ```{r}
 import("D:/desktop/book/tidybook/data/4.xlsx") %>%
   mutate_dt(n = 1) %>%
@@ -131,6 +133,7 @@ import("D:/desktop/book/tidybook/data/4.xlsx") %>%
   theme(legend.position = "none") -> stat
 ```
 
+## (tidyfst)外部计算
 ```{r}
 import("D:/desktop/book/tidybook/data/4.xlsx") %>%
   summarise_dt(n = .N, by = Q) %>%
@@ -140,19 +143,8 @@ import("D:/desktop/book/tidybook/data/4.xlsx") %>%
   theme(legend.position = "none") -> fst
 ```
 
-```{r}
-import("D:/desktop/book/tidybook/data/case_MS/p131_4.xlsx") %>%
-  ggplot(., aes(x = CO2, y = O2, size = age, color = group1, fill = pH)) +
-  geom_point(stat = "identity", shape = 21, stroke = 1, alpha = 0.8) +
-  scale_x_continuous(breaks = seq(0, 200, by = 10), minor_breaks = seq(0, 200, by = 5)) +
-  scale_y_continuous(breaks = seq(40, 200, by = 20), minor_breaks = seq(40, 200, by = 10)) +
-  scale_size_continuous(seq(65, 85, by = 5), range = c(2, 5)) +
-  scale_color_manual(values = cols) +
-  scale_fill_gradientn(colors = c("#440154", "#470E61", "#481B6D", "#482576", "#46307E", "#443B84", "#404688", "#3C508B", "#38598C", "#33628D", "#2F6B8E", "#2C738E", "#287C8E", "#25838E", "#228C8D", "#1F948C", "#1E9D89", "#20A486", "#26AD81", "#31B57B", "#3FBC73", "#4FC46A", "#61CB5F", "#75D054", "#8BD646", "#A2DA37", "#B9DE28", "#D1E11C", "#E8E419", "#FDE725")) +
-  expand_limits(fill = seq(7.2, 7.5, by = 0.1)) -> p综合图
-```
-
-## (customLayout)图片拼接
+# (customLayout)图片拼接
+## 创建画布
 ```{r}
 lay1 <- lay_new(
   matrix(1:4, nc = 2),
@@ -169,31 +161,31 @@ lay2 <- lay_new(
 )
 ```
 
-### 画布列拼接
+## 画布列拼接
 ```{r}
 col <- lay_bind_col(lay1, lay2, widths = c(1, 2))
 lay_show(col)
 ```
 
-### 画布行拼接
+## 画布行拼接
 ```{r}
 row <- lay_bind_row(lay1, lay2, heights = c(1, 2))
 lay_show(row)
 ```
 
-### 内拼接画布
+## 内拼接画布
 ```{r}
 inside <- lay_split_field(lay1, lay2, field = 4)
 lay_show(inside)
 ```
 
-### 拼接
+## 拼接
 ```{r}
 m <- lay_new(matrix(1:2, nc = 2))
 lay_grid(list(stat, fst), m)
 ```
 
-## (ggwordcloud)词云
+# (ggwordcloud)词云
 ```{r}
 import("D:/desktop/book/tidybook/data/2013-2020年中国总理记者会关键词词频.xlsx") %>%
   mutate_vars(value, scale) %>%
@@ -205,8 +197,8 @@ import("D:/desktop/book/tidybook/data/2013-2020年中国总理记者会关键词
   theme(legend.position = "none")
 ```
 
-## 边际图
-### (ggExtra)
+# 边际图
+## (ggExtra)
 ```{r}
 q %>%
   ggplot(., aes(x = CO2, y = O2, color = group1, fill = group1)) +
@@ -221,7 +213,7 @@ ggMarginal(p, type = "densigram", margins = "both", groupColour = T, groupFill =
 # margins = both, x, y
 ```
 
-### (ggside)
+## (ggside)
 ```{r}
 q %>%
   ggplot(., aes(x = CO2, y = O2, color = group1, fill = group1)) +
@@ -245,6 +237,7 @@ q %>%
   coord_fixed(ratio = 20 / 40)
 ```
 
+### 其他代码
 - `geom_xsidefreqpoly(aes(y=after_stat(count)), binwidth = 1)+` 
 - `geom_ysidefreqpoly(aes(x=after_stat(count)), binwidth = 1)+`
 
@@ -266,7 +259,7 @@ q %>%
 - `geom_xsideviolin(aes(y = as.numeric(CO2)), orientation = "y")+`
 - `geom_ysideviolin(aes(x = as.numeric(O2)), orientation = "x")+`
 
-## (ggbeeswarm)微笑散点图
+# (ggbeeswarm)微笑散点图
 ```{r}
 import("D:/desktop/book/tidybook/data/case_MS/P57_t.xlsx") %>%
   longer_dt(n, drug, name = "group", value = "value") %>%
@@ -278,7 +271,7 @@ import("D:/desktop/book/tidybook/data/case_MS/P57_t.xlsx") %>%
   theme(legend.position = (c(0.95, 0.95)))
 ```
 
-## (gghalves)散点+箱线+提琴
+# (gghalves)散点+箱线+提琴
 ```{r}
 import("D:/desktop/book/tidybook/data/case_MS/P57_t.xlsx") %>%
   longer_dt(n, drug, name = "group", value = "value") %>%
@@ -292,7 +285,7 @@ import("D:/desktop/book/tidybook/data/case_MS/P57_t.xlsx") %>%
   theme(legend.position = (c(0.95, 0.95)))
 ```
 
-## (ggbreak)坐标轴截断
+# (ggbreak)坐标轴截断
 ```{r}
 import("D:/desktop/book/tidybook/data/break.xlsx") %>%
   longer_dt(n, name = "group", value = "value") %>%
@@ -360,4 +353,13 @@ ggsurvplot(
   tables.theme = Yuri_theme
 ) +
   labs(x = "Follow up time(d)", y = "survival probability", tag = "tag")
+```
+
+# (webr)饼图+甜甜圈图+旭日图
+```{r}
+import("D:/desktop/book/tidybook/data/2019年全球医生和护士中的男性占比.xlsx") -> data
+```
+
+```{r}
+PieDonut(data, aes(pies = group, donuts = 男医生), labelposition = 1, title = "labelposition=1", explode = 1, selected = c(2, 3, 5), explodeDonut = T)
 ```

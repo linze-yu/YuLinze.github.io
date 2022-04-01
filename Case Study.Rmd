@@ -40,13 +40,11 @@ library("ggExtra") # 边际直方图/密度曲线*
 library("ggside") # 边际直方图/密度曲线
 # library("ggwordcloud")#词云
 # library("gghalves")#组合
-# library("knitr")#
-# library("kableExtra")#表格+
 ```
 
-## Case 1
+# Case 1
 ```{r, echo = F, fig.width = 7, fig.height = 5}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/prism1.xlsx") %>%
+import("D:/desktop/book/tidybook/data/prism1.xlsx") %>%
   longer_dt(name = "group", value = "value") %>%
   summarize_dt(n = .N, sd = sd(value), mean = mean(value), by = group) %>%
   ggplot(., aes(x = group, y = mean)) +
@@ -71,10 +69,10 @@ theme(
 )
 ```
 
-## Case 2
+# Case 2
 ```{r, echo = F, fig.width = 7, fig.height = 5}
 # col <- c("#BD3645", "#696AAD")
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/prism2.xlsx") %>%
+import("D:/desktop/book/tidybook/data/prism2.xlsx") %>%
   longer_dt(group1, name = "group", value = "value") %>%
   summarize_dt(group1, n = .N, sd = sd(value), mean = mean(value), by = group) %>%
   distinct_dt(.keep_all = T) %>%
@@ -101,9 +99,9 @@ theme(
 )
 ```
 
-## Case 3
+# Case 3
 ```{r, echo = F, fig.width = 5, fig.height = 5}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/prism3.xlsx") %>%
+import("D:/desktop/book/tidybook/data/prism3.xlsx") %>%
   longer_dt(n, name = "group", value = "value") %>%
   ggplot(., aes(x = group, y = value)) +
   geom_line(aes(group = n), alpha = 1, linetype = 1, color = "#96999C", lineend = "square") +
@@ -127,10 +125,10 @@ theme(
 )
 ```
 
-## Case 4
-### 散点图
+# Case 4
+## 散点图
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_1/0.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_1/0.xlsx") %>%
   ggplot(., aes(x = Adjacent, y = Tumor)) +
   geom_point(shape = 21, alpha = 0.5, color = "#696AAD", fill = "#95AAD3", stroke = 1, size = 5) +
   scale_x_continuous(breaks = seq(0, 20, by = 1), minor_breaks = seq(0, 0, by = 0)) +
@@ -141,9 +139,9 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   labs(x = "Adjacent", y = "Tumor")
 ```
 
-### 折线图
+## 折线图
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_1/1.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_1/1.xlsx") %>%
   longer_dt(., Day, name = "group", value = "value") %>%
   ggplot(., aes(x = Day, y = value, color = group, fill = group)) +
   stat_summary(fun.data = "mean_sd", geom = "point", size = 2, shape = 21, alpha = 0.5, stroke = 1, size = 4, fill = NA, lineend = "square") +
@@ -159,9 +157,9 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   labs(x = "Day(s)", y = "Values")
 ```
 
-### 柱状图1
+## 柱状图1
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_1/2.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_1/2.xlsx") %>%
   longer_dt(Replicates, name = "group", value = "value") %>%
   summarize_dt(n = .N, sd = sd(value), mean = mean(value), by = group) %>%
   ggplot(., aes(x = group, y = mean, color = group, fill = group)) +
@@ -174,9 +172,9 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   labs(x = "", y = "Values")
 ```
 
-### 柱状图2
+## 柱状图2
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_1/3.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_1/3.xlsx") %>%
   longer_dt(Replicates, name = "group", value = "value") %>%
   summarize_dt(n = .N, sd = sd(value), mean = mean(value), by = group) %>%
   ggplot(., aes(x = group, y = mean, color = group, fill = group)) +
@@ -190,9 +188,9 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   labs(x = "", y = "Values")
 ```
 
-### 对比柱状图
+## 对比柱状图
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_1/4.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_1/4.xlsx") %>%
   longer_dt(., name = "group2", value = "value") %>%
   ggplot(., aes(group2, value, color = group1, fill = group1)) +
   stat_summary(fun.data = "mean_sd", geom = "errorbar", width = 0.3, alpha = 1, position = position_dodge(width = 1), size = 1, lineend = "square") +
@@ -205,9 +203,9 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   labs(x = "", y = "Values")
 ```
 
-### 生存曲线
+## 生存曲线
 ```{r}
-F <- import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_1/5.xlsx")
+F <- import("D:/desktop/book/tidybook/data/case_1/5.xlsx")
 fit <- survfit(Surv(Time_Months, Status) ~ Expression, data = F)
 fit
 p <- ggsurvplot(fit,
@@ -234,9 +232,9 @@ p <- ggsurvplot(fit,
 p
 ```
 
-### 热图
+## 热图
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_1/6.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_1/6.xlsx") %>%
   mutate_vars(2:3, scale) %>%
   longer_dt(ID, name = "group", value = "value") %>%
   ggplot(., aes(x = ID, y = group)) +
@@ -247,19 +245,19 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   Yuri_theme
 ```
 
-## Case 5
-### 散点图
+# Case 5
+## 散点图
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_2/0.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_2/0.xlsx") %>%
   ggplot(., aes(x = X, y = Y)) +
   geom_point(size = 5, shape = 21, alpha = 0.5, color = "#696AAD", fill = "#95AAD3", stroke = 1) +
   coord_fixed(ratio = 1 / 1) +
   Yuri_theme
 ```
 
-### 折线图
+## 折线图
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_2/1.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_2/1.xlsx") %>%
   longer_dt(., Day, name = "group", value = "value") %>%
   ggplot(., aes(Day, value, color = group, fill = group)) +
   stat_summary(fun.data = "mean_sd", geom = "point", size = 2, shape = 21, alpha = 0.7, stroke = 1, position = position_dodge(0.2), fill = NA, lineend = "square") +
@@ -272,9 +270,9 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   theme(legend.position = (c(0.35, 0.95)))
 ```
 
-### 柱状图1
+## 柱状图1
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_2/2.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_2/2.xlsx") %>%
   longer_dt(., name = "group", value = "value") %>%
   summarize_dt(n = .N, sd = sd(value), mean = mean(value), by = group) %>%
   ggplot(., aes(x = reorder(group, -mean), y = mean, color = group, fill = group)) +
@@ -287,9 +285,9 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   theme(legend.position = ("none"))
 ```
 
-### 对比柱状图
+## 对比柱状图
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_2/3.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_2/3.xlsx") %>%
   longer_dt(., name = "group2", value = "value") %>%
   ggplot(., aes(group2, value, color = group1, fill = group1)) +
   stat_summary(fun.data = "mean_sd", geom = "errorbar", width = 0.5, size = 1, alpha = 1, position = position_dodge(width = 1), lineend = "square") +
@@ -301,9 +299,9 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   theme(legend.position = (c(0.95, 0.95)))
 ```
 
-### 箱线图
+## 箱线图
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_2/4.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_2/4.xlsx") %>%
   longer_dt(., name = "group", value = "value") %>%
   ggplot(., aes(group, value, color = group, fill = group)) +
   geom_half_boxplot(alpha = 0.3, size = 0.618, position = position_nudge(x = 0, y = 0), side = "l", lineend = "square") +
@@ -315,17 +313,17 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   theme(legend.position = ("none"))
 ```
 
-### 生存曲线
+## 生存曲线
 ```{r}
-F <- import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_2/5.xlsx")
+F <- import("D:/desktop/book/tidybook/data/case_2/5.xlsx")
 fit <- survfit(Surv(Time_Months, Status) ~ Expression, data = F)
 p <- ggsurvplot(fit, data = F, fun = NULL, linetype = 1, conf.int = FALSE, pval = FALSE, pval.method = FALSE, test.for.trend = FALSE, surv.median.line = "none", risk.table = FALSE, cumevents = FALSE, cumcensor = FALSE, tables.height = 0.25, facet.by = NULL, add.all = FALSE, combine = FALSE)
 p
 ```
 
-### 柱状图2
+## 柱状图2
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_2/6.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_2/6.xlsx") %>%
   longer_dt(., name = "group", value = "value") %>%
   summarize_dt(n = .N, sd = sd(value), mean = mean(value), by = group) %>%
   ggplot(., aes(group, mean, color = group, fill = group)) +
@@ -337,9 +335,9 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   theme(legend.position = ("none"))
 ```
 
-### 热图
+## 热图
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_2/7.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_2/7.xlsx") %>%
   mutate_vars(2:3, scale) %>%
   longer_dt(., ID, name = "Group", value = "value") %>%
   ggplot(., aes(x = ID, y = Group)) +

@@ -35,26 +35,12 @@ knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = T, comment =
 ## 加载包
 ```{r 加载包}
 library("YuriR") #
-library("ggbeeswarm") # 散点防止重合
-library("tayloRswift") #
-library("ggExtra") # 边际直方图/密度曲线*
-library("ggside") # 边际直方图/密度曲线
-# library("ggwordcloud")#词云
-# library("gghalves")#组合
 # library("rio")#
 # library("tidyverse")#
-# library("tidyfst")#
-# library("data.table")#
-# library("knitr")#
-# library("kableExtra")#表格+
-#----------------------------------------------
-# install.packages("devtools")
-# devtools::install_github("r-lib/devtools")
-# devtools::install_github("Yurisuriyel/YuriR")
 ```
 
 ```{r}
-import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_MS/p131_4.xlsx") %>%
+import("D:/desktop/book/tidybook/data/case_MS/p131_4.xlsx") %>%
   ggplot(., aes(x = CO2, y = O2, size = age, color = group1, fill = pH)) +
   geom_point(stat = "identity", shape = 21, stroke = 1, alpha = 0.8) +
   scale_x_continuous(breaks = seq(0, 200, by = 10), minor_breaks = seq(0, 200, by = 5)) +
@@ -65,9 +51,8 @@ import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/cas
   expand_limits(fill = seq(7.2, 7.5, by = 0.1)) -> p综合图
 ```
 
-# 主题调整
-### 字体部分`element_text()`
-#### 全字体
+# 字体部分`element_text()`
+## 全字体
 ```{r}
 p全字体 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -75,7 +60,7 @@ p全字体 <- p综合图 +
 p全字体
 ```
 
-#### 标题title
+## 标题title
 ```{r}
 p标题 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -83,7 +68,7 @@ p标题 <- p综合图 +
 p标题
 ```
 
-#### 副标题subtitle
+## 副标题subtitle
 ```{r}
 p副标题 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -91,7 +76,7 @@ p副标题 <- p综合图 +
 p副标题
 ```
 
-#### 说明文字caption
+## 说明文字caption
 ```{r}
 p说明文字 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -99,7 +84,7 @@ p说明文字 <- p综合图 +
 p说明文字
 ```
 
-#### 标签tag
+## 标签tag
 ```{r}
 p标签 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -107,7 +92,7 @@ p标签 <- p综合图 +
 p标签
 ```
 
-#### 图例标题legend.title
+## 图例标题legend.title
 ```{r}
 p图例标题 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -115,7 +100,7 @@ p图例标题 <- p综合图 +
 p图例标题
 ```
 
-#### 图例文字legend.text
+## 图例文字legend.text
 ```{r}
 p图例文字 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -123,7 +108,7 @@ p图例文字 <- p综合图 +
 p图例文字
 ```
 
-#### 分面标签文本strip.text
+## 分面标签文本strip.text
 ```{r}
 p分面标签文本 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -132,7 +117,7 @@ p分面标签文本 <- p综合图 +
 p分面标签文本
 ```
 
-#### Y轴数字标axis.text.y
+## Y轴数字标axis.text.y
 ```{r}
 pY轴数字标 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -140,7 +125,7 @@ pY轴数字标 <- p综合图 +
 pY轴数字标
 ```
 
-#### Y轴标题axis.title.y
+## Y轴标题axis.title.y
 ```{r}
 pY轴标题 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -148,7 +133,7 @@ pY轴标题 <- p综合图 +
 pY轴标题
 ```
 
-#### X轴数字标axis.text.x
+## X轴数字标axis.text.x
 ```{r}
 pX轴数字标 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -156,7 +141,7 @@ pX轴数字标 <- p综合图 +
 pX轴数字标
 ```
 
-#### X轴标题axis.title.x
+## X轴标题axis.title.x
 ```{r}
 pX轴标题 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -164,8 +149,8 @@ pX轴标题 <- p综合图 +
 pX轴标题
 ```
 
-### 矩形部分`element_rect()`
-#### 绘图区域背景panel.background
+# 矩形部分`element_rect()`
+## 绘图区域背景panel.background
 ```{r}
 p绘图区域背景 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -173,7 +158,7 @@ p绘图区域背景 <- p综合图 +
 p绘图区域背景
 ```
 
-#### 绘图区边框panel.border
+## 绘图区边框panel.border
 ```{r}
 p绘图区边框 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -181,7 +166,7 @@ p绘图区边框 <- p综合图 +
 p绘图区边框
 ```
 
-#### 文字区域背景plot.background
+## 文字区域背景plot.background
 ```{r}
 p文字区域背景 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -189,7 +174,7 @@ p文字区域背景 <- p综合图 +
 p文字区域背景
 ```
 
-#### 图例背景legend.background
+## 图例背景legend.background
 ```{r}
 p图例背景 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -197,7 +182,7 @@ p图例背景 <- p综合图 +
 p图例背景
 ```
 
-#### 图例符号背景legend.key
+## 图例符号背景legend.key
 ```{r}
 p图例符号背景 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -205,7 +190,7 @@ p图例符号背景 <- p综合图 +
 p图例符号背景
 ```
 
-#### 分面标签背景strip.background
+## 分面标签背景strip.background
 ```{r}
 p分面标签背景 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -214,8 +199,8 @@ p分面标签背景 <- p综合图 +
 p分面标签背景
 ```
 
-### 线条部分`element_line()`
-#### 坐标轴axis.line
+# 线条部分`element_line()`
+## 坐标轴axis.line
 ```{r}
 p坐标轴 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -223,7 +208,7 @@ p坐标轴 <- p综合图 +
 p坐标轴
 ```
 
-#### X轴刻度线axis.ticks.x
+## X轴刻度线axis.ticks.x
 ```{r}
 pX轴刻度线 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -231,7 +216,7 @@ pX轴刻度线 <- p综合图 +
 pX轴刻度线
 ```
 
-#### Y轴刻度线axis.ticks.y
+## Y轴刻度线axis.ticks.y
 ```{r}
 pY轴刻度线 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -239,7 +224,7 @@ pY轴刻度线 <- p综合图 +
 pY轴刻度线
 ```
 
-#### 刻度线长度axis.ticks.length
+## 刻度线长度axis.ticks.length
 ```{r}
 p刻度线长度 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -247,7 +232,7 @@ p刻度线长度 <- p综合图 +
 p刻度线长度
 ```
 
-#### 主线panel.grid.major.x/y
+## 主线panel.grid.major.x/y
 ```{r}
 p主竖线 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -258,7 +243,7 @@ p主竖线 <- p综合图 +
 p主竖线
 ```
 
-#### 次竖线panel.grid.minor.x/y
+## 次竖线panel.grid.minor.x/y
 ```{r}
 p次竖线 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -269,8 +254,8 @@ p次竖线 <- p综合图 +
 p次竖线
 ```
 
-### 其他部分
-#### 图边界plot.margin
+# 其他部分
+## 图边界plot.margin
 ```{r}
 p图边界 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -278,7 +263,7 @@ p图边界 <- p综合图 +
 p图边界
 ```
 
-#### 分面绘图区之间的间距panel.spacing
+## 分面绘图区之间的间距panel.spacing
 ```{r}
 p分面绘图区之间的间距 <- p综合图 +
   facet_grid(~group1) +
@@ -287,7 +272,7 @@ p分面绘图区之间的间距 <- p综合图 +
 p分面绘图区之间的间距
 ```
 
-#### 图例边界panel.spacing
+## 图例边界panel.spacing
 ```{r}
 p图例边界 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -295,7 +280,7 @@ p图例边界 <- p综合图 +
 p图例边界
 ```
 
-#### 图例位置legend.position
+## 图例位置legend.position
 ```{r}
 p图例位置 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -303,7 +288,7 @@ p图例位置 <- p综合图 +
 p图例位置
 ```
 
-#### 图例符号高度legend.key.height
+## 图例符号高度legend.key.height
 ```{r}
 p图例符号高度 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -311,7 +296,7 @@ p图例符号高度 <- p综合图 +
 p图例符号高度
 ```
 
-#### 图例符号宽度legend.key.width
+## 图例符号宽度legend.key.width
 ```{r}
 p图例符号宽度 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -319,7 +304,7 @@ p图例符号宽度 <- p综合图 +
 p图例符号宽度
 ```
 
-#### 图例符号大小legend.key.size
+## 图例符号大小legend.key.size
 ```{r}
 p图例符号大小 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -327,7 +312,7 @@ p图例符号大小 <- p综合图 +
 p图例符号大小
 ```
 
-#### 图例标题对齐方式legend.title.align
+## 图例标题对齐方式legend.title.align
 ```{r}
 p图例标题对齐方式 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -335,7 +320,7 @@ p图例标题对齐方式 <- p综合图 +
 p图例标题对齐方式
 ```
 
-#### 图例文字标签对齐方式legend.title.align
+## 图例文字标签对齐方式legend.title.align
 ```{r}
 p图例文字标签对齐方式 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -343,7 +328,7 @@ p图例文字标签对齐方式 <- p综合图 +
 p图例文字标签对齐方式
 ```
 
-#### 图例排列方向legend.direction
+## 图例排列方向legend.direction
 ```{r}
 p图例排列方向 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -351,7 +336,7 @@ p图例排列方向 <- p综合图 +
 p图例排列方向
 ```
 
-#### 图例位置legend.justification
+## 图例位置legend.justification
 ```{r}
 p图例位置 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -359,7 +344,7 @@ p图例位置 <- p综合图 +
 p图例位置
 ```
 
-#### 多图例的排列方式legend.box
+## 多图例的排列方式legend.box
 ```{r}
 p多图例的排列方式 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -367,7 +352,7 @@ p多图例的排列方式 <- p综合图 +
 p多图例的排列方式
 ```
 
-#### 多图例居中方式legend.box.just
+## 多图例居中方式legend.box.just
 ```{r}
 p多图例居中方式 <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -375,7 +360,7 @@ p多图例居中方式 <- p综合图 +
 p多图例居中方式
 ```
 
-#### plot.caption.position
+## plot.caption.position
 ```{r}
 p <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -383,7 +368,7 @@ p <- p综合图 +
 p
 ```
 
-#### plot.tag.position
+## plot.tag.position
 ```{r}
 p <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -391,7 +376,7 @@ p <- p综合图 +
 p
 ```   
           
-#### plot.title.position
+## plot.title.position
 ```{r}
 p <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +
@@ -399,7 +384,7 @@ p <- p综合图 +
 p
 ``` 
 
-### theme+theme()
+# theme+theme()
 ```{r}
 p <- p综合图 +
   labs(x = "X轴", y = "Y轴", title = "标题", subtitle = "副标题", caption = "说明文字", tag = "标签") +

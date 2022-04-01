@@ -35,10 +35,11 @@ knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = T, comment =
 ## 加载包
 ```{r 加载包}
 library("YuriR") #
+library("webr") # 饼图+甜甜圈图+旭日图+检验绘图
 ```
 
-## 统计方法
-### 单变量定量资料
+# 统计方法
+## 单变量定量资料
 
 |**独立性**|**正态性**||**检验方法**|
 |:-:|:-:|:-:|:-:|
@@ -66,7 +67,7 @@ library("YuriR") #
 |各样本所代表的总体方差齐|
 |**单样本秩和检验可以检验正态性**|
 
-### 单变量定性资料分析
+## 单变量定性资料分析
 
 |||**检验方法**|
 |:-|:-|:-|
@@ -94,7 +95,7 @@ library("YuriR") #
 |R×C表中理论数小于5的格子不能超过1/5|
 |不能有小于1的理论数,如果实验中有不符合R×C表的卡方检验,可以通过增加样本数,列合并来实现|
 
-### 双变量资料分析
+## 双变量资料分析
 
 |||**检验方法**|
 |:-|:-|:-|
@@ -106,7 +107,7 @@ library("YuriR") #
 |线性|非正态|秩回归|
 |非线性|曲线回归|
 
-### 多变量资料分析
+## 多变量资料分析
 
 |||**检验方法**|
 |:-|:-|:-|
@@ -118,7 +119,7 @@ library("YuriR") #
 |带时间变量|自变量无或1个|KM法/寿命表法|
 |带时间变量|自变量多个|Cox比例风险模型|
 
-### 回归
+## 回归
 
 |回归类型|用途|
 |:-|:-|
@@ -134,14 +135,15 @@ library("YuriR") #
 |稳健|用一个或多个量化的解释变量预测一个量化的响应变量,能抵御强影响点的干扰|
 
 ```{r}
-q <- import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_MS/p131_4.xlsx") #
-data1 <- import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_MS/P56_t.xlsx") # 单样本t检验
-data2 <- import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_MS/P57_t.xlsx") # 配对样本t检验
-data3 <- import("D:/OneDrive - Envirotecture Design Service/桌面/book/tidybook/data/case_MS/P59_t.xlsx") # 独立样本t检验方差齐
+q <- import("D:/desktop/book/tidybook/data/case_MS/p131_4.xlsx") #
+data1 <- import("D:/desktop/book/tidybook/data/case_MS/P56_t.xlsx") # 单样本t检验
+data2 <- import("D:/desktop/book/tidybook/data/case_MS/P57_t.xlsx") # 配对样本t检验
+data3 <- import("D:/desktop/book/tidybook/data/case_MS/P59_t.xlsx") # 独立样本t检验方差齐
 set.seed(2022)
 data4 <- data.table(A = rnorm(30, mean = 50, sd = 25), B = rnorm(30, mean = 50, sd = 50)) # 独立样本t检验方差不齐
 ```
 
+# 检验数据正态性
 ## Shapiro-Wilk normality test(检验数据正态性)6数据3-5000
 ```{r, include = F}
 shapiro.test(data1[, c("C")])
@@ -156,7 +158,7 @@ ks.test(data1[, c("C")], "pnorm", mean = mean(data1[, c("C")]), sd = sqrt(var(da
 # "two.sided", "less", "greater"
 ```
 
-## Levene"s Test for Homogeneity of Variance (center = mean)(检验方差齐性检验)
+# Levene"s Test for Homogeneity of Variance (center = mean)(检验方差齐性检验)
 `library("car")#方差齐性检验`
 ```{r, include = F}
 data3整理 <- longer_dt(data3, name = "group", value = "value")
@@ -167,19 +169,20 @@ data4整理 <- data.frame(data4整理)
 car::leveneTest(value ~ group, center = mean, data = data4整理)
 ```
 
-## 相关性检验7
+# 相关性检验7
 `cor.test(x, y, method = c("pearson", "kendall", "spearman"))`
 ```{r}
 cor.test(q$CO2, q$O2, method = "pearson", use = "complete.obs") # 处理缺失值
 ```
 
-## t检验
-### 单样本t检验8(已知均值=14)
+# t检验
+## 单样本t检验8(已知均值=14)
 `t.test(x, mu = 0, alternative = "two.sided")`  
 "two.sided"是双尾检验, "less"是左侧单尾检验, "greater"是右侧单尾检验
 ```{r}
 data1 %>%
-  t.test(., mu = 14, alternative = "two.sided", conf.level = 0.95)
+  t.test(., mu = 14, alternative = "two.sided", conf.level = 0.95) %>%
+  plot()
 # 是否小于,less;是否大于,greater
 ```
 - t是t检验统计值(`test$statistic`)
@@ -188,61 +191,64 @@ data1 %>%
 - conf.int是平均值的置信区间,为95％ (`test$conf.int`)
 - sample estimates是样本的平均值(`test$estimate`)
 
-### 配对样本t检验12
+## 配对样本t检验12
 ```{r}
-t.test(data2[, c("before")], data2[, c("after")], paired = T, var.equal = T, conf.level = 0.95, alternative = "two.sided")
+t.test(data2[, c("before")], data2[, c("after")], paired = T, var.equal = T, conf.level = 0.95, alternative = "two.sided") %>%
+  plot()
 ```
 
-### 独立样本t检验10
-#### 方差齐
+## 独立样本t检验10
+### 方差齐
 ```{r}
-t.test(data3[, c("A")], data3[, c("B")], paired = F, var.equal = T, conf.level = 0.95, alternative = "two.sided")
+t.test(data3[, c("A")], data3[, c("B")], paired = F, var.equal = T, conf.level = 0.95, alternative = "two.sided") %>%
+  plot()
 ```
 
-#### t'检验/方差不齐
+### t'检验/方差不齐
 ```{r}
-t.test(data4[, c("A")], data4[, c("B")], paired = F, var.equal = F, conf.level = 0.95, alternative = "two.sided")
+t.test(data4[, c("A")], data4[, c("B")], paired = F, var.equal = F, conf.level = 0.95, alternative = "two.sided") %>%
+  plot()
 ```
 
-## Wilcoxon检验
-### 单样本Wilcoxon检验9(已知均值=14)
+# Wilcoxon检验
+## 单样本Wilcoxon检验9(已知均值=14)
 `wilcox.test(x, mu = 0, alternative = "two.sided")`  
 "two.sided"是双尾检验, "less"是左侧单尾检验, "greater"是右侧单尾检验
 ```{r}
 wilcox.test(data1$C, mu = 14, alternative = "two.sided")
 ```
 
-### 两独立样本Wilcoxon检验/Wilcoxon秩和检验/Mann-Whitney检验11
+## 两独立样本Wilcoxon检验/Wilcoxon秩和检验/Mann-Whitney检验11
 `wilcox.test( ~ group, data = , var.equal = TRUE)`
 ```{r}
 wilcox.test(value ~ group, data = data3整理, var.equal = TRUE)
 ```
 
-### 配对样本Wilcoxon检验13
+## 配对样本Wilcoxon检验13
 ```{r}
 wilcox.test(data2[, c("before")], data2[, c("after")], data = data2, paired = TRUE)
 ```
 
-## ANOVA
-### One-Way ANOVA(单因素方差分析)14
+# ANOVA
+## One-Way ANOVA(单因素方差分析)14
 ```{r}
 import("D:/desktop/book/tidybook/data/case_MS/One-Way ANOVA.xlsx") %>%
   longer_dt(name = "group", value = "value") %>%
   data.frame() -> OWA
 ```
 
-#### 方差齐性检验
+### 方差齐性检验
 ```{r, include = F}
 car::leveneTest(value ~ group, center = mean, data = OWA)
 ```
 
-#### 方差分析
+### 方差分析
 ```{r}
 aov(value ~ group, data = OWA) %>%
   anova()
 ```
 
-#### 事后检验(TukeyHSD)
+### 事后检验(TukeyHSD)
 ```{r}
 aov(value ~ group, data = OWA) %>%
   TukeyHSD()
@@ -252,7 +258,7 @@ aov(value ~ group, data = OWA) %>%
 - lwr,upr:置信区间的上下端点为95％(默认值)
 - p adj:调整后的多个比较的p值
 
-### Two-Way ANOVA(双向方差分析)17
+## Two-Way ANOVA(双向方差分析)17
 随机区组设计  
 ```{r}
 import("D:/desktop/book/tidybook/data/case_MS/Two-Way ANOVA.xlsx") %>%
@@ -260,19 +266,19 @@ import("D:/desktop/book/tidybook/data/case_MS/Two-Way ANOVA.xlsx") %>%
   data.frame() -> TWA
 ```
 
-### Repeated ANOVA(重复测量方差分析)
+## Repeated ANOVA(重复测量方差分析)
 ```{r}
 import("D:/desktop/book/tidybook/data/case_MS/Repeated ANOVA.xlsx") %>%
   longer_dt(name = "group", value = "value") %>%
   data.frame() -> RA
 ```
 
-### 多元方差分析18
+## 多元方差分析18
 
-### 多样本间的方差比较20
+## 多样本间的方差比较20
 
-## z检验
-### 单比例z检验21
+# z检验
+## 单比例z检验21
 ```{r, eval = F}
 binom.test(x, n, p = 0.5, alternative = "two.sided")
 prop.test(x, n, p = NULL, alternative = "two.sided", correct = TRUE)
@@ -285,35 +291,34 @@ correct:表示在可能的情况下是否进行Yates’连续性校正的逻辑
 binom.test():计算精确的二项式检验,样本量较小时推荐使用  
 prop.test():当样本量较大(N>30)时可以使用,它使用二项式的分布在较大样本中与正态分布近似的原理  
 
-### 两比例Z检验22
+## 两比例Z检验22
 ```{r, eval = F}
 prop.test(x, n, p = NULL, alternative = "two.sided", correct = TRUE)
 ```
 
-## 卡方拟合度检验23
+# 卡方拟合度检验23
 ```{r}
 test <- c(16422, 5474, 5474, 1850)
 chisq.test(test, p = c(9 / 16, 3 / 16, 3 / 16, 1 / 16))
 ```
 
-## 卡方独立性检验24
+# 卡方独立性检验24
 ```{r}
 import("D:/desktop/book/tidybook/data/case_MS/卡方.xlsx") -> data
 data
 ```
 
-## Kruskal-Wallis 秩和检验15
+# Kruskal-Wallis 秩和检验15
 ```{r}
 kruskal.test(value ~ group, data = OWA)
 ```
 
-### 多组之间的两两成对比较
+## 多组之间的两两成对比较
 ```{r}
 pairwise.wilcox.test(OWA$value, OWA$group, p.adjust.method = "BH")
 ```
 
-
-## Fleiss" kappa
+# Fleiss" kappa
 `library("irr")#`  
 kappa<0.4,则一致性较差  
 0.4<kappa<0.6时表明一致性一般  
