@@ -1,5 +1,5 @@
 ---
-title: "tidybook"
+title: "绘图"
 author: "Linze Yu"
 date: "`r Sys.Date()`"
 output:
@@ -32,6 +32,8 @@ knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = T, comment =
 # , cache = T
 ```
 
+<font size = 6>数据导入 > 数据清洗 > 数据变换 > **数据可视化** > 数据建模 > 可重现与交互报告</font>
+
 ## 加载包
 ```{r 加载包}
 library("YuriR") #
@@ -44,8 +46,6 @@ library("tayloRswift") #
 ```{r}
 import("D:/desktop/book/tidybook/data/case_MS/p131_4.xlsx") -> q
 ```
-
-# 数据可视化
 
 |图层|ggplot2结构|
 |-:|:-|

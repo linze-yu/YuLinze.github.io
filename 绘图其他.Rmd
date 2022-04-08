@@ -19,7 +19,7 @@ editor_options:
 ---
 
 ```{r, 代码全局设置, echo = F}
-knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = T, comment = "", echo = T, dpi = 200, collapse = T, fig.align = "left", dev = "png", cache = T)
+knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = F, comment = "", echo = T, dpi = 200, fig.align = "left", dev = "png", cache = T)
 # , eval = F代码显示不运行
 # , include = F代码运行, 不显示代码和结果
 # , echo = T 显示代码块
@@ -32,12 +32,15 @@ knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = T, comment =
 # , cache = T
 ```
 
+<font size = 6>数据导入 > 数据清洗 > 数据变换 > **数据可视化** > 数据建模 > 可重现与交互报告</font>
+
 ## 加载包
 ```{r 加载包}
 library("YuriR") #
 library("ggbeeswarm") # 散点防止重合
-library("ggExtra") # 边际直方图/密度曲线*
 library("ggside") # 边际直方图/密度曲线
+library("hexbin") # 六边形
+library("ggpointdensity") # 散点图和二维密度图之间的交叉
 library("webr") # 饼图+甜甜圈图+旭日图+检验绘图
 # library("ggwordcloud")#词云
 # library("gghalves")#组合
@@ -50,39 +53,41 @@ import("D:/desktop/book/tidybook/data/case_MS/p131_4.xlsx") -> q
 # 美学举例(A药B药降血糖)
 ```{r}
 data <- import("D:/desktop/book/tidybook/data/case_MS/P57_t.xlsx")
-data
+data %>%
+  slice_dt(1:3)
 ```
 
 ## before
 ```{r}
 data %>%
   ggplot(., aes(x = drug, y = before)) +
-  stat_boxplot(geom = "errorbar", alpha = 1, size = 1, width = 0.5, lineend = "square") +
-  stat_boxplot(geom = "boxplot", alpha = 1, size = 1, na.rm = T, fill = "#FFFFFF", width = 0.5, lineend = "square") +
-  expand_limits(y = c(7, 12))
+  stat_boxplot(geom = "errorbar", alpha = 1, size = 0.5, width = 0.5, lineend = "square") +
+  stat_boxplot(geom = "boxplot", alpha = 1, size = 0.5, na.rm = T, fill = "#FFFFFF", width = 0.5, lineend = "square") +
+  expand_limits(y = c(7, 12)) -> before
 ```
 
 ## after
 ```{r}
 data %>%
   ggplot(., aes(x = drug, y = after)) +
-  stat_boxplot(geom = "errorbar", alpha = 1, size = 1, width = 0.5, lineend = "square") +
-  stat_boxplot(geom = "boxplot", alpha = 1, size = 1, na.rm = T, fill = "#FFFFFF", width = 0.5, lineend = "square") +
-  expand_limits(y = c(7, 9))
+  stat_boxplot(geom = "errorbar", alpha = 1, size = 0.5, width = 0.5, lineend = "square") +
+  stat_boxplot(geom = "boxplot", alpha = 1, size = 0.5, na.rm = T, fill = "#FFFFFF", width = 0.5, lineend = "square") +
+  expand_limits(y = c(7, 9)) -> after
 ```
 
 ## 如何比较患者使用降糖药前后的差异
 ```{r}
 databa <- longer_dt(data, n, drug, name = "group", value = "value")
-databa
+databa %>%
+  slice_dt(1:3)
 databa %>%
   ggplot(., aes(x = group, y = value)) +
-  stat_boxplot(geom = "errorbar", alpha = 1, size = 1, width = 0.5, lineend = "square") +
-  stat_boxplot(geom = "boxplot", alpha = 1, size = 1, na.rm = T, fill = "#FFFFFF", width = 0.5, lineend = "square") +
+  stat_boxplot(geom = "errorbar", alpha = 1, size = 0.5, width = 0.5, lineend = "square") +
+  stat_boxplot(geom = "boxplot", alpha = 1, size = 0.5, na.rm = T, fill = "#FFFFFF", width = 0.5, lineend = "square") +
   geom_signif(
     comparisons = list(c("before", "after")),
     map_signif_level = T,
-    size = 1,
+    size = 0.5,
     hjust = 0.5,
     vjust = 0.5,
     textsize = 6,
@@ -94,19 +99,19 @@ databa %>%
     y_position = 11.5,
     test = t.test,
   ) +
-  expand_limits(y = c(6, 12))
+  expand_limits(y = c(6, 12)) -> dif
 ```
 
 ## 综合
 ```{r}
 databa %>%
   ggplot(., aes(x = group, y = value, color = drug)) +
-  stat_boxplot(geom = "errorbar", alpha = 1, size = 1, width = 0.5, lineend = "square") +
-  stat_boxplot(geom = "boxplot", alpha = 1, size = 1, na.rm = T, fill = "#FFFFFF", width = 0.5, lineend = "square") +
+  stat_boxplot(geom = "errorbar", alpha = 1, size = 0.5, width = 0.5, lineend = "square") +
+  stat_boxplot(geom = "boxplot", alpha = 1, size = 0.5, na.rm = T, fill = "#FFFFFF", width = 0.5, lineend = "square") +
   geom_signif(
     comparisons = list(c("before", "after")),
     map_signif_level = T,
-    size = 1,
+    size = 0.5,
     hjust = 0.5,
     vjust = 0.5,
     textsize = 6,
@@ -119,7 +124,107 @@ databa %>%
     test = t.test,
   ) +
   expand_limits(y = c(6, 12)) +
-  theme(legend.position = (c(0.95, 0.25)))
+  theme(legend.position = (c(0.95, 0.25))) -> sum
+```
+
+```{r}
+lay <- lay_new(
+  matrix(1:4, nc = 2),
+  widths = c(1, 1),
+  heights = c(1, 1)
+)
+lay_grid(list(before, dif, after, sum), lay)
+```
+
+# ggplot2其他
+## 折线直方图
+```{r}
+q %>%
+  ggplot(., aes(x = CO2, color = group1, fill = group1)) +
+  geom_freqpoly(size = 1, alpha = 1, stat = "bin") +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = fills) +
+  Yuri_theme +
+  theme(legend.position = (c(0.95, 0.95))) +
+  coord_fixed(ratio = 20 / 2)
+```
+
+## 点直方图
+```{r}
+q %>%
+  ggplot(., aes(x = CO2, color = group1, fill = group1)) +
+  geom_dotplot(size = 1, alpha = 0.5, shape = 21, stroke = 1) +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = fills) +
+  Yuri_theme +
+  theme(legend.position = (c(0.95, 0.95)))
+```
+
+## 拟合分位数的回归线
+```{r}
+q %>%
+  ggplot(., aes(x = CO2, y = O2, color = group1, fill = group1)) +
+  geom_quantile(size = 1, linetype = 1, alpha = 1, stat = "quantile") +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = fills) +
+  Yuri_theme +
+  theme(legend.position = (c(0.95, 0.95))) +
+  coord_fixed(ratio = 20 / 20)
+```
+
+## 面积图
+```{r}
+q %>%
+  ggplot(., aes(x = CO2, y = O2, color = group1, fill = group1)) +
+  geom_area(size = 1, linetype = 1, alpha = 0.5, stat = "identity") +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = fills) +
+  Yuri_theme +
+  theme(legend.position = (c(0.95, 0.95))) +
+  coord_fixed(ratio = 20 / 50)
+```
+
+## 阶梯图
+```{r}
+q %>%
+  ggplot(., aes(x = CO2, y = O2, color = group1, fill = group1)) +
+  geom_step(size = 1, linetype = 1, alpha = 1, stat = "identity") +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = fills) +
+  Yuri_theme +
+  theme(legend.position = (c(0.95, 0.95))) +
+  coord_fixed(ratio = 20 / 40)
+```
+
+## 二维等高线颜色密度图
+```{r}
+q %>%
+  ggplot(., aes(x = CO2, y = O2)) +
+  Yuri_theme +
+  geom_density_2d_filled(bins = 20, alpha = 1, show.legend = F) +
+  coord_fixed(ratio = 20 / 40)
+```
+
+## 六边形二维直方图
+(hexbin)
+```{r}
+q %>%
+  ggplot(., aes(x = CO2, y = O2)) +
+  Yuri_theme +
+  geom_hex(bins = 20, alpha = 1, color = "#FFFFFF", size = 0.5) +
+  theme(legend.position = (c(0.95, 0.95))) +
+  coord_fixed(ratio = 20 / 40)
+```
+
+## 散点图和二维密度图之间的交叉
+(ggpointdensity)
+```{r}
+q %>%
+  ggplot(., aes(x = CO2, y = O2)) +
+  Yuri_theme +
+  geom_pointdensity(method = "auto", adjust = 4, alpha = 1, size = 5, shape = 16, stroke = 1) + # "default""kde2d"
+  theme(legend.position = (c(0.95, 0.95))) +
+  coord_fixed(ratio = 20 / 40)
 ```
 
 # 社科相关
@@ -187,6 +292,7 @@ lay_grid(list(stat, fst), m)
 
 # (ggwordcloud)词云
 ```{r}
+set.seed(2022)
 import("D:/desktop/book/tidybook/data/2013-2020年中国总理记者会关键词词频.xlsx") %>%
   mutate_vars(value, scale) %>%
   ggplot(., aes(label = words, size = value, color = value)) +
@@ -198,22 +304,7 @@ import("D:/desktop/book/tidybook/data/2013-2020年中国总理记者会关键词
 ```
 
 # 边际图
-## (ggExtra)
-```{r}
-q %>%
-  ggplot(., aes(x = CO2, y = O2, color = group1, fill = group1)) +
-  geom_point(size = 5, shape = 21, alpha = 0.7, stroke = 1) +
-  scale_color_manual(values = cols) +
-  scale_fill_manual(values = fills) +
-  Yuri_theme +
-  theme(legend.position = "none") +
-  coord_fixed(ratio = 20 / 40) -> p
-ggMarginal(p, type = "densigram", margins = "both", groupColour = T, groupFill = T, xparams = list(binwidth = 1), yparams = list(binwidth = 5))
-# type = histogram, density, boxplot, violin, densigram
-# margins = both, x, y
-```
-
-## (ggside)
+(ggside)
 ```{r}
 q %>%
   ggplot(., aes(x = CO2, y = O2, color = group1, fill = group1)) +
@@ -264,7 +355,11 @@ q %>%
 import("D:/desktop/book/tidybook/data/case_MS/P57_t.xlsx") %>%
   longer_dt(n, drug, name = "group", value = "value") %>%
   ggplot(., aes(x = group, y = value, color = drug, fill = drug)) +
-  geom_beeswarm(cex = 4, priority = "density", size = 5, shape = 21, alpha = 0.5, stroke = 1) + # "descending""density""random""none"
+  geom_beeswarm(cex = 4, priority = "density", size = 5, shape = 21, alpha = 0.5, stroke = 1, method = "swarm", corral = "gutter") +
+  # priority = "descending""density""random""none"
+  # method = "compactswarm""hex""square""center"
+  # corral = "wrap""random""omit"
+  # geom_quasirandom(method = "smiley",cex = 4, size = 5, shape = 21, alpha = 0.5, stroke = 1)+
   scale_color_manual(values = cols) +
   scale_fill_manual(values = fills) +
   Yuri_theme +
@@ -355,6 +450,22 @@ ggsurvplot(
   labs(x = "Follow up time(d)", y = "survival probability", tag = "tag")
 ```
 
+# Violin+SEM+line
+```{r, echo = F}
+import("D:/desktop/book/tidybook/data/case_2/4.xlsx") %>%
+  longer_dt(., name = "group", value = "value") -> c
+c[, c("mean", "sd", "n") := .(mean(value), sd(value), .N), by = group]
+c %>%
+  ggplot(., aes(x = group, y = mean)) +
+  geom_violin(aes(x = group, y = value), color = NA, fill = "#696AAD", alpha = 0.3, width = 0.5) +
+  geom_errorbar(aes(ymin = mean - sd / sqrt(n), ymax = mean + sd / sqrt(n)), color = "#696AAD", width = 0.2, size = 1) +
+  geom_segment(x = 1, y = 0.434, xend = 2, yend = 0.785, color = "#696AAD", size = 1) +
+  geom_segment(x = 2, y = 0.785, xend = 3, yend = 0.691, color = "#696AAD", size = 1) +
+  geom_point(aes(x = group, y = mean), color = "#696AAD", shape = 21, size = 2, fill = NA, stroke = 1, ) +
+  scale_y_continuous(breaks = seq(0, 2, by = 0.2), minor_breaks = seq(0, 0, by = 0)) +
+  Yuri_theme
+```
+
 # (webr)饼图+甜甜圈图+旭日图
 ```{r}
 import("D:/desktop/book/tidybook/data/2019年全球医生和护士中的男性占比.xlsx") -> data
@@ -363,3 +474,6 @@ import("D:/desktop/book/tidybook/data/2019年全球医生和护士中的男性�
 ```{r}
 PieDonut(data, aes(pies = group, donuts = 男医生), labelposition = 1, title = "labelposition=1", explode = 1, selected = c(2, 3, 5), explodeDonut = T)
 ```
+
+# ggforce
+

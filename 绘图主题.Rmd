@@ -32,6 +32,8 @@ knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = T, comment =
 # , cache = T
 ```
 
+<font size = 6>数据导入 > 数据清洗 > 数据变换 > **数据可视化** > 数据建模 > 可重现与交互报告</font>
+
 ## 加载包
 ```{r 加载包}
 library("YuriR") #

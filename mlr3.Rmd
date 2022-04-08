@@ -34,13 +34,97 @@ knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = T, comment =
 
 ## 加载包
 ```{r 加载包}
-library("YuriR")#
-library("mlr3verse")#
-library("MASS")#
-library("nnet")#
-#library("survival")#
-library("AER")#
+library("YuriR") #
+# library("mlr3verse") #
+library("MASS") #
+library("nnet") #
+# library("survival")#
+library("AER") #
 ```
+
+# mlr3
+```{r}
+import("D:/desktop/book/tidybook/data/iris.xlsx") %>%
+  data.table() -> data
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 机器学习
+## 监督学习
+- 线性回归
+- 逻辑回归
+- 线型判别分析
+- 决策树
+- 朴素贝叶斯
+- k邻近
+- 学习向量量化
+- 支持向量机
+- 随机森林
+- AdaBoost
+
+## 非监督学习
+- 高斯混合模型
+- 限制波尔兹曼机
+- K-means聚类
+- 最大期望算法
+
+# 简单线性回归
+怀孕情况;血糖;血压;皮肤厚度;胰岛素水平;体重指数;糖尿病谱系功能;年龄;糖尿病诊断结果
+```{r}
+data <- import("D:/desktop/book/tidybook/data/diabetes.xlsx")
+```
+研究问题:根据血糖情况来预测胰岛素水平
+
+```{r}
+data %>%
+  ggplot(., aes(x = Glucose, y = Insulin)) +
+  geom_point() +
+  stat_smooth() +
+  Yuri_theme
+```
+
+```{r}
+data %>%
+  slice_dt(Glucose > 0 & Insulin > 0) %>%
+  ggplot(., aes(x = Glucose, y = Insulin)) +
+  geom_point() +
+  stat_smooth() +
+  Yuri_theme
+```
+
+```{r}
+model <- lm(Insulin ~ Glucose, data = data)
+model
+```
+
+回归线
+```{r}
+data %>%
+  slice_dt(Glucose > 0 & Insulin > 0) %>%
+  ggplot(., aes(x = Glucose, y = Insulin)) +
+  geom_point() +
+  stat_smooth(method = lm) +
+  Yuri_theme
+```
+
+
+
+
+
+
+
+
 
 # Logistic模型
 - 寻找危险因素,找到某些影响因变量的"坏因素",一般可以通过优势比发现危险因素
@@ -62,39 +146,40 @@ library("AER")#
 
 ```{r}
 x <- seq(from = -10, to = 10, by = 0.01)
-y <- exp(x)/(1+exp(x))
-ggplot(data = NULL, mapping = aes(x = x,y = y))+
+y <- exp(x) / (1 + exp(x))
+ggplot(data = NULL, mapping = aes(x = x, y = y)) +
   geom_line(color = "blue", size = 1)
 ```
 
 # 案例1
 ```{r}
-input <- mtcars[,c("am","cyl","hp","wt")]
+input <- mtcars[, c("am", "cyl", "hp", "wt")]
 head(input)
-m.data = glm(formula = am ~ cyl + hp + wt, data = input, family = binomial)
+m.data <- glm(formula = am ~ cyl + hp + wt, data = input, family = binomial)
 print(summary(m.data))
 ```
 在总结中,对于变量"cyl"和"hp",最后一列中的p值大于0.05,我们认为它们对变量"am"的值有贡献是无关紧要的,只有重量(wt)影响该回归模型中的"am"值
 
 # 案例2
 ```{r}
-data(Affairs,package = "AER")
-df<-Affairs
-df$ynaffairs<-ifelse(df$affairs>0,1,0)
+data(Affairs, package = "AER")
+df <- Affairs
+df$ynaffairs <- ifelse(df$affairs > 0, 1, 0)
 table(df$ynaffairs)
-df$ynaffairs<-factor(df$ynaffairs,
-                     levels = c(0,1),
-                     labels = c("No","Yes"))
+df$ynaffairs <- factor(df$ynaffairs,
+  levels = c(0, 1),
+  labels = c("No", "Yes")
+)
 table(df$ynaffairs)
-fit.full<-glm(ynaffairs~gender+age+yearsmarried+children+religiousness+education+occupation+rating,data=df,family = binomial())
+fit.full <- glm(ynaffairs ~ gender + age + yearsmarried + children + religiousness + education + occupation + rating, data = df, family = binomial())
 summary(fit.full)
 ```
 
 根据回归系数的P值可以看到性别,是否有孩子,学历,职业对方程的贡献都不显著.去除这些变量重新拟合模型
 
 ```{r}
-fit.reduced<-glm(ynaffairs~age+yearsmarried+religiousness+rating,data=df,family = binomial())
-anova(fit.full,fit.reduced,test = "Chisq")
+fit.reduced <- glm(ynaffairs ~ age + yearsmarried + religiousness + rating, data = df, family = binomial())
+anova(fit.full, fit.reduced, test = "Chisq")
 ```
 
 可以看到结果中p值等于0.2108大于0.05，表明四个变量和9个变量的模型拟合程度没有差别
@@ -102,19 +187,18 @@ anova(fit.full,fit.reduced,test = "Chisq")
 # 接下来是评价变量对结果概率的影响
 ## 构造一个测试集
 ```{r}
-testdata<-data.frame(rating=c(1,2,3,4,5),
-                     age=mean(df$age),
-                     yearsmarried=mean(df$yearsmarried),
-                     religiousness=mean(df$religiousness))
-testdata$prob<-predict(fit.reduced,newdata = testdata,
-                       type = "response")
-ggplot(testdata,aes(x=rating,y=prob))+
-  geom_col(aes(fill=factor(rating)),show.legend = F)+
-  geom_label(aes(label=round(prob,2)))+
+testdata <- data.frame(
+  rating = c(1, 2, 3, 4, 5),
+  age = mean(df$age),
+  yearsmarried = mean(df$yearsmarried),
+  religiousness = mean(df$religiousness)
+)
+testdata$prob <- predict(fit.reduced,
+  newdata = testdata,
+  type = "response"
+)
+ggplot(testdata, aes(x = rating, y = prob)) +
+  geom_col(aes(fill = factor(rating)), show.legend = F) +
+  geom_label(aes(label = round(prob, 2))) +
   Yuri_theme
 ```
-
-
-
-
-

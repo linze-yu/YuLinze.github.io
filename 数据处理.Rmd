@@ -19,7 +19,7 @@ editor_options:
 ---
 
 ```{r, 代码全局设置, echo = F}
-knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = F, comment = "", echo = T, dpi = 200, collapse = T, fig.align = "left", dev = "png", cache = T)
+knitr::opts_chunk$set(warning = F, error = F, message = F, prompt = F, comment = "", echo = T, dpi = 200, collapse = F, fig.align = "left", dev = "png", cache = T)
 # , eval = F代码显示不运行
 # , include = F代码运行, 不显示代码和结果
 # , echo = T 显示代码块
@@ -40,205 +40,18 @@ library("YuriR") #
 # library("data.table")#
 ```
 
-<font size = 6>**数据导入** > **数据清洗** > **数据变换** > 数据可视化 > 数据建模 > **可重现与交互报告**</font>
+<font size = 6>**数据导入** > **数据清洗** > **数据变换** > 数据可视化 > 数据建模 > 可重现与交互报告</font>
 
-# data.table`data[i, j, by]`
-
-|**data.table**||
-|-|-|
-|`.()`|代替`list()`|
-|`:=`|增加/修改列|
-|`.SD`|每个分组的数据子集,除了`by`或`keyby`的列|
-|`.SDcols`||
-
-
-## 数据框
-```{r, eval = F}
-input <- if (file.exists("flights14.csv")) {
-  "flights14.csv"
-} else {
-  "https://raw.githubusercontent.com/Rdatatable/data.table/master/vignettes/flights14.csv"
-}
-flights <- fread(input)
-flights
-fwrite(flights, file = "D:/desktop/book/tidybook/data/datatable.csv", encoding = "UTF-8")
-```
-
-## 数据导入/导出
+# 数据导入tidyfst
 ```{r}
-import("D:/desktop/book/tidybook/data/datatable.csv") %>%
-  data.table() -> dt
 import("D:/desktop/book/tidybook/data/case_MS/p131_4.xlsx") %>%
   data.table() -> q
-```
-
-## 数据清洗
-### 创建`data.table`
-```{r}
-data.table(
-  a = c(1:5),
-  b = letters[1:5]
-) -> data
-```
-
-### 操作行
-```{r}
-q[3:5, ] # 选择3-5行
-q[group1 == "B", ] # 选择group1为B的行
-q[age %in% c("65", "69")] # 选择age中等于65,69的行
-```
-
-### 操作列
-```{r}
-q[, CO2]
-q[, .(CO2, age)]
-q[, .(sum = sum(CO2), mean = mean(O2), median = median(age), sd = sd(pH))]
-```
-
-
-# 数据框
-```{r}
-dt <- data.table(
-  a = c(1:5),
-  b = letters[1:5]
-)
-dt
-```
-
-# 选择列
-list="."
-
-## 单列
-```{r}
-dt[, list(a)]
-dt[, .(a)]
-```
-
-## 多列
-```{r}
-dt[, list(a, b)]
-dt[, .(a, b)]
-```
-
-## 使用列名
-```{r}
-dt[, c("a")]
-```
-
-# 选择行
-
-## 对a列筛选大于3的行
-```{r}
-dt[a > 3]
-```
-
-## 对b列筛选等于"a","e"的行
-```{r}
-dt[b %in% c("a", "e")]
-```
-
-## 多条件
-```{r}
-dt[a > 3 & b %in% c("a", "e")]
-```
-
-# 选择行与列
-
-## 
-```{r}
-dt[a > 3, list(a)]
-```
-
-## 
-```{r}
-dt[b %in% c("a", "e"), list(a)]
-```
-
-# 新建列":="
-
-## 新建列
-```{r}
-dt[, c := 6:10]
-dt
-```
-
-## 由已知新建列
-```{r}
-dt[, d := a + c]
-dt
-```
-
-## 新建多个列
-```{r}
-dt[, c("e", "f") := list(letters[6:10], LETTERS[6:10])]
-dt
-```
-
-## 新增条件列
-```{r}
-dt[, f := if_else(a > 3, ">3", "<=3")]
-dt
-```
-
-## 链式
-```{r}
-dt[, f := if_else(a > 3, ">3", "<=3")][order(-a)]
-dt
-```
-
-# 聚合
-
-## 聚合
-```{r}
-dt[, list(nrow = .N, a_sum = sum(a), c_mean = mean(c))]
-```
-
-## 组合计算
-```{r}
-dt[, list(CR = sum(a) / sum(c))]
-```
-
-## 分类聚合
-```{r}
-dt[, list(a_sum = sum(a), CR = sum(a) / sum(c)), by = list(f)]
-```
-
-## 按多列分类
-```{r}
-dt[, list(a_sum = sum(a), CR = sum(a) / sum(c)), by = list(f, e)]
-```
-
-# 多表联结
-```{r}
-dt1 <- dt[, list(a, c, d, b)]
-dt2 <- dt[, list(b, e, f)]
-dt1
-dt2
-```
-
-## 左右联结
-```{r}
-dt1[dt2, on = .(b)]
-dt2[dt1, on = .(b)]
-```
-
-## 多表合并
-### 列数不同
-```{r}
-rbindlist(list(dt1, dt2), fill = T)
-```
-
-
-
-
-# 数据导入
-```{r}
-import("D:/desktop/book/tidybook/data/case_MS/p131_4.xlsx") -> q
-slice_dt(q, 1:3)
+q %>%
+  slice_dt(1:3)
 dim(q)
 ```
 
-# 数据清洗
+# 数据清洗tidyfst
 
 ## 用平均值、中值或模式填充缺失值`impute_dt`
 .func= "mode"(default), "mean" or "median"
@@ -401,7 +214,7 @@ e1 %>%
 e3
 ```
 
-# 数据变换
+# 数据变换tidyfst
 ## 转置
 ```{r, eval = F}
 q %>%
@@ -451,3 +264,96 @@ q %>%
   mutate_vars(1:4, scale) %>%
   dim()
 ```
+
+## 列表矩阵转换
+```{r}
+mat <- matrix(1:9, 3)
+rownames(mat) <- letters[1:3]
+colnames(mat) <- LETTERS[1:3]
+mat
+```
+
+### 矩阵变列表
+```{r}
+tdf = mat_df(mat)
+tdf
+```
+
+### 列表变矩阵
+```{r}
+mat = df_mat(tdf,row,col,value)
+mat
+```
+
+# `data[i, j, by]`
+
+|||
+|-|-|
+|`.()`|代替`list()`|
+|`:=`|按引用方式增加,修改列|
+|`.N`|行数|
+|`.SD`|每个分组的数据子集,除了`by`或`keyby`的列|
+|`.SDcols`|与`.SD`连用,用来选择包含在`.SD`中的列|
+|`.BY`|包含所有`by`分组变量的`list`|
+|`.I`|整数向量`seq_len(nrow(x))`,例如`DT[, .I[which.max(somecol)], by=grp]`|
+|`.GRP`|分组索引,1代表第1分组,2代表第2分组|
+|`.NGRP`|分组数|
+|`.EACHI`|用于`by/keyby = .EACHI`表示根据i表达式的每一行分组|
+
+# 数据清洗data.table
+## 提取点
+```{r}
+q[1, 2] # 第一行第二列data.table
+q[[1, 2]] # 第一行第二列c
+q[c(1, 3), 3] # 第一三行第三列data.table
+q[c(1, 3), "CO2"] # 第一三行weight列data.table
+```
+
+## 操作行
+```{r}
+q[c(1, 3), ] # 提取一三行
+q[3:5, ] # 选择3-5行
+q[group1 == "B", ] %>%
+  slice_dt(1:3) # 选择group1为B的行
+q[age %in% c("65", "69"), ] %>%
+  slice_dt(1:3) # 选择age中等于65,69的行
+```
+
+## 操作列
+`list="."`
+```{r}
+q[, "age"] %>%
+  slice_dt(1:3)
+q[, 2] %>%
+  slice_dt(1:3)
+q[, c("age", "pH")] %>%
+  slice_dt(1:3)
+q[, age:O2] %>%
+  slice_dt(1:3)
+q[, list(age)] %>%
+  slice_dt(1:3)
+q[, .(age, pH)] %>%
+  slice_dt(1:3)
+q[, -c("age", "pH")] %>%
+  slice_dt(1:3)
+q[, !c("age", "pH")] %>%
+  slice_dt(1:3)
+q[age > 80]
+q[pH %in% c(7.41, 7.5)]
+q[age > 60 & O2 %in% c(60, 50)]
+q[, c("COO", "N") := list(CO2 + O2, 51:100)][, agef := if_else(age > 70, ">70", "<=70")] %>%
+  slice_dt(1:3)
+```
+
+## 排序`-`换序
+```{r}
+q[order(age), ]
+```
+
+## 计算
+```{r}
+q[, .(sum = sum(CO2), mean = mean(O2), median = median(age), sd = sd(pH))] # data.table
+```
+
+# 数据变换data.table
+
