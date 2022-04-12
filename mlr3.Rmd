@@ -40,6 +40,7 @@ library("MASS") #
 library("nnet") #
 # library("survival")#
 library("AER") #
+library("glmnet") #
 ```
 
 # mlr3
@@ -48,6 +49,12 @@ import("D:/desktop/book/tidybook/data/iris.xlsx") %>%
   data.table() -> data
 ```
 
+# (glmnet)
+```{r}
+data(QuickStartExample)
+fit = glmnet(x, y, alpha = 0.2, weights = c(rep(1,50),rep(2,50)), nlambda = 20)
+print(fit)
+```
 
 
 
